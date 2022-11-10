@@ -17,7 +17,7 @@
     Param
     (
         [Parameter(Mandatory=$false, ValueFromPipelineByPropertyName=$true, Position=0, HelpMessage="Имя компьютерая должно начинаться с WS/WM/WN и быть равным 8 символам")]
-	#	[ValidatePattern(("^W[S,M,N]-.{4}")]
+	#	[ValidatePattern(("^W[S,M,N]-.{5}")]
         [System.String]$ComputerName,
         [Parameter(Mandatory=$false, ValueFromPipelineByPropertyName=$true, Position=1, HelpMessage="Путь до файла начинается с C:\ или D:\")]
         [ValidatePattern("^[C,D]\:\\")]
