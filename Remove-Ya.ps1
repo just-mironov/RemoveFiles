@@ -1,26 +1,26 @@
 <#
   .SYNOPSIS
-  Удаление яндекс браузера
+  РЈРґР°Р»РµРЅРёРµ СЏРЅРґРµРєСЃ Р±СЂР°СѓР·РµСЂР°
   .DESCRIPTION
-  Добавляет запись в реестр - срабатывает при входе пользователя в систему
+  Р”РѕР±Р°РІР»СЏРµС‚ Р·Р°РїРёСЃСЊ РІ СЂРµРµСЃС‚СЂ - СЃСЂР°Р±Р°С‚С‹РІР°РµС‚ РїСЂРё РІС…РѕРґРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РІ СЃРёСЃС‚РµРјСѓ
   .EXAMPLE
-  Remove-Yandex -ComputerName WS-00001
+  Remove-Yandex -ComputerName "WS-00001"
   .PARAMETER ComputerName
-  Обязательный параметр имя компьютера
-#> 
+  РћР±СЏР·Р°С‚РµР»СЊРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ РёРјСЏ РєРѕРјРїСЊСЋС‚РµСЂР°
+#>
 
     [CmdletBinding()]
     Param
     (
-        [Parameter(Mandatory=$false, ValueFromPipelineByPropertyName=$true, Position=0, HelpMessage="Имя компьютерая должно начинаться с WS/WM/WN и быть равным 8 символам")]
-        [ValidatePattern('^W[S,M,N]-.....')]
+        [Parameter(Mandatory=$false, ValueFromPipelineByPropertyName=$true, Position=0, HelpMessage="РРјСЏ РєРѕРјРїСЊСЋС‚РµСЂР°СЏ РґРѕР»Р¶РЅРѕ РЅР°С‡РёРЅР°С‚СЊСЃСЏ СЃ WS/WM/WN Рё Р±С‹С‚СЊ СЂР°РІРЅС‹Рј 8 СЃРёРјРІРѕР»Р°Рј")]
+        [ValidatePattern('^W[S,M,N]-.{5}')]
         [System.String]$ComputerName
     )
 
-Begin {  # Проверка ввода
-    while ($ComputerName -notmatch "^W[S,M,N]-.....") {
-	    [string]$ComputerName = ($(read-host "Укажите имя компьютера")).trim()
-	    if ($ComputerName -notmatch "^W[S,M,N]-.....") { Write-Host Имя компьютерая должно начинаться с WS, WM или WN и быть равным 8 символам -ForegroundColor Red }
+Begin {  # РџСЂРѕРІРµСЂРєР° РІРІРѕРґР°
+    while ($ComputerName -notmatch "^W[S,M,N]-.{5}") {
+	    [string]$ComputerName = ($(read-host "РЈРєР°Р¶РёС‚Рµ РёРјСЏ РєРѕРјРїСЊСЋС‚РµСЂР°")).trim()
+	    if ($ComputerName -notmatch "^W[S,M,N]-.{5}") { Write-Host РРјСЏ РєРѕРјРїСЊСЋС‚РµСЂР°СЏ РґРѕР»Р¶РЅРѕ РЅР°С‡РёРЅР°С‚СЊСЃСЏ СЃ WS, WM РёР»Рё WN Рё Р±С‹С‚СЊ СЂР°РІРЅС‹Рј 8 СЃРёРјРІРѕР»Р°Рј -ForegroundColor Red }
     }
 
     if ($env:CredUserName) {
@@ -30,24 +30,24 @@ Begin {  # Проверка ввода
 	    $PSentry = New-PSSession -ComputerName $ComputerName -Credential $creds -ErrorAction SilentlyContinue
 	    } else { $PSentry = New-PSSession -ComputerName $ComputerName -ErrorAction SilentlyContinue}
 
-    if (!($PSentry)) { 
-        $Cred = Get-Credential -Message 'Нужны права сетевого администратора'
+    if (!($PSentry)) {
+        $Cred = Get-Credential -Message 'РќСѓР¶РЅС‹ РїСЂР°РІР° СЃРµС‚РµРІРѕРіРѕ Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР°'
         if ($cred) {
             $PSentry = New-PSSession -ComputerName $ComputerName -Credential $Cred -ErrorAction SilentlyContinue
             }
         if (!($PSentry)) {
-            Write-Host Подключиться к $ComputerName не удалось -ForegroundColor Red
+            Write-Host РџРѕРґРєР»СЋС‡РёС‚СЊСЃСЏ Рє $ComputerName РЅРµ СѓРґР°Р»РѕСЃСЊ -ForegroundColor Red
             return
-            } else { 
+            } else {
 		    $env:CredUserName = $cred.UserName
-		    $env:CredUserPassword = $cred.Password | ConvertFrom-SecureString –Key (1..16)
+		    $env:CredUserPassword = $cred.Password | ConvertFrom-SecureString вЂ“Key (1..16)
 		    }
         }
 }
 
-Process {  #удаление
+Process {  #СѓРґР°Р»РµРЅРёРµ
     Invoke-Command -Session $PSentry -ScriptBlock {
-	
+
 		function Add-Reestr {
 			[CmdletBinding()]
 			Param([Parameter(ValueFromPipelineByPropertyName)]$Name)
@@ -55,26 +55,26 @@ Process {  #удаление
 				# Regex pattern for SIDs
 				$PatternSID = 'S-1-5-21-\d+-\d+\-\d+\-\d+$'
 				# Get Username, SID, and location of ntuser.dat for all users
-				$ProfileList = gp 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\*' | Where-Object {$_.PSChildName -match $PatternSID} | 
-					Select  @{name="SID";expression={$_.PSChildName}}, 
-							@{name="UserHive";expression={"$($_.ProfileImagePath)\ntuser.dat"}}, 
+				$ProfileList = gp 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\*' | Where-Object {$_.PSChildName -match $PatternSID} |
+					Select  @{name="SID";expression={$_.PSChildName}},
+							@{name="UserHive";expression={"$($_.ProfileImagePath)\ntuser.dat"}},
 							@{name="Username";expression={$_.ProfileImagePath -replace '^(.*[\\\/])', ''}}
 				$item = $ProfileList | where UserName -eq $Name
 				$PathRun = Get-ItemProperty registry::HKEY_USERS\$($Item.SID)\Software\Microsoft\Windows\CurrentVersion\Run\
 				$UninstallPath = Get-ItemProperty registry::HKEY_USERS\$($Item.SID)\Software\Microsoft\Windows\CurrentVersion\Uninstall\*
 				$RemoveYandexBrowser = ($UninstallPath | where DisplayName -eq Yandex).UninstallString.replace("verbose-logging", " multi-install --chrome --system-level --force-uninstall")
-				$RemoveYaPinLancher = ($UninstallPath | where DisplayName -eq 'Кнопка "Яндекс" на панели задач').UninstallString + " --force-uninstall"
+				$RemoveYaPinLancher = ($UninstallPath | where DisplayName -eq 'РљРЅРѕРїРєР° "РЇРЅРґРµРєСЃ" РЅР° РїР°РЅРµР»Рё Р·Р°РґР°С‡').UninstallString + " --force-uninstall"
 				if ($PathRun -match "YandexSearchBand") {
 					$PathRun | New-ItemProperty -Name RemoveYandexSearchBand -PropertyType String -Value $PathRun.YandexSearchBand.Replace("auto","uninstall") | Out-Null
-					"Добавлена запись для удаления Алисы в реестр " + "{0}" -f $($item.Username) | Write-Output  
+					"Р”РѕР±Р°РІР»РµРЅР° Р·Р°РїРёСЃСЊ РґР»СЏ СѓРґР°Р»РµРЅРёСЏ РђР»РёСЃС‹ РІ СЂРµРµСЃС‚СЂ " + "{0}" -f $($item.Username) | Write-Output
 				}
 				$PathRun | New-ItemProperty -Name RemoveYandexBrowser -PropertyType String -Value $RemoveYandexBrowser | Out-Null
-				"Добавлена запись для удаления YandexBrowser в реестр " + "{0}" -f $($item.Username) | Write-Output
+				"Р”РѕР±Р°РІР»РµРЅР° Р·Р°РїРёСЃСЊ РґР»СЏ СѓРґР°Р»РµРЅРёСЏ YandexBrowser РІ СЂРµРµСЃС‚СЂ " + "{0}" -f $($item.Username) | Write-Output
 				$PathRun | New-ItemProperty -Name RemoveYaPinLancher -PropertyType String -Value $RemoveYaPinLancher | Out-Null
-				"Добавлена запись для удаления YaPinLancher в реестр " + "{0}" -f $($item.Username) | Write-Output
+				"Р”РѕР±Р°РІР»РµРЅР° Р·Р°РїРёСЃСЊ РґР»СЏ СѓРґР°Р»РµРЅРёСЏ YaPinLancher РІ СЂРµРµСЃС‚СЂ " + "{0}" -f $($item.Username) | Write-Output
 			}
 		}
-		
+
 	Get-ChildItem -Path C:\Users | Where-Object {Test-Path C:\Users\$_\AppData\Local\Yandex} | Add-Reestr
 	}
 }
